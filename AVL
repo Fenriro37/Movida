@@ -1,0 +1,71 @@
+package Strutture_Dati;
+
+public class AVL {
+	private Nodo root;
+	
+	public AVL (Nodo R) {
+		root = R;
+	};
+	
+	//funzioni da implementare
+	
+	public Nodo search (int k) {
+		Nodo v = root;
+		while(v != null) {
+			if (k == v.key) {
+				return v;
+			}
+			if (k < v.key) 
+				v = v.left;	
+			else 
+				v = v.right;
+		};
+		return null;
+	}
+	
+	public void Rotazione_SS (Nodo N) {
+		Nodo t = N.left;
+		N.left = t.right;
+		t.right = N;
+	}
+	
+	public void Rotazione_DD (Nodo N) {
+		Nodo t = N.right;
+		N.right = t.left;
+		t.left = N;
+	}
+	//
+	// DA QUI SOTTO CI SONO MODIFICHE NON CONTROLLATE
+	//
+	//
+	public void Rotazione_SD (Nodo V) {
+		Nodo Z = V.left; //slide 31 alberi bilanciati di ricerca. Bisogna controllare se ci conviene aggiornare gli sbilanciamenti o se ci 
+		Nodo W = Z.right;// basta richiamare la funzione sblianciamento dopo la rotazione.
+		
+		Z.right = W.left;
+		V.left = W.right;
+		W.left = Z;
+		W.right = V;
+	}
+	
+	public void Rotazione_DS (Nodo V) {
+		Nodo Z = V.right;
+		Nodo W = Z.left;
+		
+		Z.left = W.right;
+		V.right = W.left;
+		W.right = Z;
+		W.left = V;
+	}
+	public int altezza(Nodo N) { //questa funzione snellisce la funzione sbilanciamento che altrimenti sarebbe dovuta
+		if (N == null)			 //andare per casistiche su possibili figli nulli.
+			return 0; 
+		
+	    return N.height; 
+	    } 
+	
+	public int Sbilanciamento(Nodo N) {
+		if (N == null) return 0;
+		return altezza(N.left) - altezza(N.right);  
+	}
+}

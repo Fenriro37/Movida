@@ -1,3 +1,4 @@
+
 package Strutture_Dati;
 
 public class AVL {
@@ -5,6 +6,7 @@ public class AVL {
 	
 	public AVL (Nodo R) {
 		root = R;
+		R = root.parent;
 	};
 	
 	//funzioni da implementare
@@ -35,7 +37,6 @@ public class AVL {
 		t.left = N;
 	}
 	//
-	// DA QUI SOTTO CI SONO MODIFICHE NON CONTROLLATE
 	//
 	//
 	public void Rotazione_SD (Nodo V) {
@@ -57,6 +58,7 @@ public class AVL {
 		W.right = Z;
 		W.left = V;
 	}
+	
 	public int altezza(Nodo N) { //questa funzione snellisce la funzione sbilanciamento che altrimenti sarebbe dovuta
 		if (N == null)			 //andare per casistiche su possibili figli nulli.
 			return 0; 
@@ -64,8 +66,61 @@ public class AVL {
 	    return N.height; 
 	    } 
 	
-	public int Sbilanciamento(Nodo N) {
-		if (N == null) return 0;
+	public int Sbilanciamento(Nodo N) { //<--- possiamo anche creare una funzione ricorsiva che essenzialmente conti i nodi dei due sottoalberi
+		if (N == null) return 0;        //   per poi restituire l'altezza
 		return altezza(N.left) - altezza(N.right);  
 	}
+	
+	public Nodo max(Nodo v) {
+		while (v != null &&
+				v.right != null) {
+				v = v.right;
+				}
+				return v;
+				}
+
+	
+	public Nodo predecessore(Nodo v) {
+		if (v == null) return null;
+		
+		if(v.left != null) return max(v.left);
+		else   {	
+	    Nodo tmp = v.parent;
+		while (tmp!=null && v == tmp.left) {
+			v=tmp;
+			tmp =tmp.parent;
+			}
+		return tmp;
+		}
+	}
+    	
+	public void insert (Movie m, int key) {
+		Nodo tmp = null; 
+		while(root != null) {
+			tmp = root;
+			if (root.key>key) root=root.left; 
+			else root = root.right;
+		}
+		Nodo N = new Nodo (key, m);
+		N.parent = tmp;
+		if (tmp == null) root = N;
+		
+		if (key<tmp.key) tmp.left=N;      //qui come nel while se il valore coincide con quello del padre viene messo a destra
+		else tmp.right=N;
+		
+		//aggiorna_altezza() oppure N.parent.altezza+=1
+	}
+	
+	public void delete (int key, Movie m) { //poichè ci possono essere più chiavi uguali bisogna passare anche il film
+		//if (root.key == key && root.movie.getTitle().equals(m.getTitle())) root = null; // caso eliminazione radice
+		
+		Nodo tmp = null; 
+		while(root != null) {
+			tmp = root;
+			if (root.key>key) root=root.left; 
+			else root = root.right;
+		
+			}
+		}
 }
+

@@ -58,18 +58,23 @@ public class AVL {
 		W.right = Z;
 		W.left = V;
 	}
-	
-	public int altezza(Nodo N) { //questa funzione snellisce la funzione sbilanciamento che altrimenti sarebbe dovuta
-		if (N == null)			 //andare per casistiche su possibili figli nulli.
-			return 0; 
-		
-	    return N.height; 
-	    } 
-	
-	public int Sbilanciamento(Nodo N) { //<--- possiamo anche creare una funzione ricorsiva che essenzialmente conti i nodi dei due sottoalberi
-		if (N == null) return 0;        //   per poi restituire l'altezza
-		return altezza(N.left) - altezza(N.right);  
+	public int max (int a, int b) {
+		if (a>=b)
+			return a;
+		else 
+			return b;
 	}
+	
+	public int altezza(Nodo N) { 
+		//questa funzione calcola l'altezza di un albero data la radice e aggiorna lo sbilamciamento su tutti i nodi del sottoalbero
+		if (N == null) {
+			return 0; 		
+		}
+		else {
+			N.height =  altezza(N.left) - altezza(N.right);
+			return max(altezza(N.left), altezza(N.right)) + 1;
+			}
+	    } 
 	
 	public Nodo max(Nodo v) {
 		while (v != null &&

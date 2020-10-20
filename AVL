@@ -1,5 +1,4 @@
-
-package Strutture_Dati;
+package Strutture_DAti;
 
 public class AVL {
 	private Nodo root;
@@ -25,39 +24,6 @@ public class AVL {
 		return null;
 	}
 	
-	public void Rotazione_SS (Nodo N) {
-		Nodo t = N.left;
-		N.left = t.right;
-		t.right = N;
-	}
-	
-	public void Rotazione_DD (Nodo N) {
-		Nodo t = N.right;
-		N.right = t.left;
-		t.left = N;
-	}
-	//
-	//
-	//
-	public void Rotazione_SD (Nodo V) {
-		Nodo Z = V.left; //slide 31 alberi bilanciati di ricerca. Bisogna controllare se ci conviene aggiornare gli sbilanciamenti o se ci 
-		Nodo W = Z.right;// basta richiamare la funzione sblianciamento dopo la rotazione.
-		
-		Z.right = W.left;
-		V.left = W.right;
-		W.left = Z;
-		W.right = V;
-	}
-	
-	public void Rotazione_DS (Nodo V) {
-		Nodo Z = V.right;
-		Nodo W = Z.left;
-		
-		Z.left = W.right;
-		V.right = W.left;
-		W.right = Z;
-		W.left = V;
-	}
 	public int max (int a, int b) {
 		if (a>=b)
 			return a;
@@ -71,7 +37,7 @@ public class AVL {
 			return 0; 		
 		}
 		else {
-			N.height =  altezza(N.left) - altezza(N.right);
+			N.sbilanciamento =  altezza(N.left) - altezza(N.right);
 			return max(altezza(N.left), altezza(N.right)) + 1;
 			}
 	    } 
@@ -83,7 +49,6 @@ public class AVL {
 				}
 				return v;
 				}
-
 	
 	public Nodo predecessore(Nodo v) {
 		if (v == null) return null;
@@ -98,7 +63,53 @@ public class AVL {
 		return tmp;
 		}
 	}
-    	
+	
+	public void Rotazione_SS (Nodo V) {
+		//aggiornamento puntatori
+		Nodo U = V.left; 
+		V.left = U.right; 
+		U.right = V;
+		//aggiornamento sbilanciamenti
+		V.sbilanciamento = V.left.sbilanciamento - V.right.sbilanciamento;
+		U.sbilanciamento = U.left.sbilanciamento - U.right.sbilanciamento;
+	}
+	
+	public void Rotazione_DD (Nodo V) {
+		//aggiornamento puntatori
+		Nodo U = V.right;
+		V.right = U.left;
+		U.left = V;
+		//aggiornamento sbilanciamenti
+		V.sbilanciamento = V.left.sbilanciamento - V.right.sbilanciamento;
+		U.sbilanciamento = U.left.sbilanciamento - U.right.sbilanciamento;
+	}
+	
+	public void Rotazione_SD (Nodo V) {
+		Nodo Z = V.left; //slide 31 alberi bilanciati di ricerca. Bisogna controllare se ci conviene aggiornare gli sbilanciamenti o se ci 
+		Nodo W = Z.right;// basta richiamare la funzione sblianciamento dopo la rotazione.
+		
+		Z.right = W.left;
+		V.left = W;
+		W.left = Z;
+		
+		Z.sbilanciamento++; 	//rotazione sd -> lo sbilanciamento in Z è negativo 
+						//-> se Z scende il suo sbilanciamento aumenta
+		
+		Rotazione_SS(V);
+	}
+	
+	public void Rotazione_DS (Nodo V) {
+		Nodo Z = V.right;
+		Nodo W = Z.left;
+		
+		Z.left = W.right;		
+		V.right = W;
+		W.right = Z;
+		
+		Z.sbilanciamento--;
+		Rotazione_DD(V);
+	}
+	
 	public void insert (Movie m, int key) {
 		Nodo tmp = null; 
 		while(root != null) {
@@ -129,3 +140,16 @@ public class AVL {
 		}
 }
 
+
+
+//Scegliere la rotazione
+//if balance factor(top) = 2: // right is imbalanced
+//    if balance factor(R) = 1: // 
+//         do a left rotation
+//    else if balance factor(R) = -1:
+//         do a double rotation
+//else: // must be -2, left is imbalanced
+//    if balance factor(L) = 1: // 
+//         do a left rotation
+//    else if balance factor(L) = -1:
+//         do a double rotation

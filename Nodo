@@ -1,0 +1,20 @@
+package Strutture_Dati;
+
+class Nodo { 
+    protected int key, height; 
+    protected Nodo left, right,parent; 
+    protected Movie movie;
+  
+    Nodo(int d, Movie M) { 
+        key = d; 
+        height = 1;
+        movie = M;
+        left = null;
+        right = null;
+        parent = null;
+    }
+    
+    public int sbilanciamento() {
+    return this.left.height - this.right.height;
+    }
+}

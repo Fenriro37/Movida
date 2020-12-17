@@ -1,6 +1,7 @@
 package Strutture_Dati;
 
-public class AVL {
+public class AVL {	
+
 	private Nodo root;
 	
 	public AVL (Nodo R) {
@@ -51,6 +52,7 @@ public class AVL {
 			AggiustaAltezza(N.parent); 
 			N = N.parent;
 		} 
+		System.out.println("check1");
 	}
 	
 	public void Rotazione_SS (Nodo V) {
@@ -170,6 +172,7 @@ public class AVL {
 	
 	//Aggiusta sbilanciamento di un cammino nodo-radice
 	public void AggiustaSbilanciamento(Nodo I) {
+		System.out.println("check");
 		if(I != null) {
 			I = I.parent;
 			while (I!=I.parent) {
@@ -179,8 +182,11 @@ public class AVL {
 				}
 				
 				if (I.sbilanciamento() == 2) { //sbilanciamento a sinistra
-					if (I.left.sbilanciamento() == 1)
+					if (I.left.sbilanciamento() == 1) {
+						System.out.println("check");
 						Rotazione_SS(I);
+						System.out.println("check");
+					}
 					else if(I.left.sbilanciamento() == -1)
 						Rotazione_SD(I);
 				}
@@ -215,8 +221,9 @@ public class AVL {
 	
 	public void insert (int key, Movie m) {
 		Nodo tmp = null; 
-		Nodo stmp = root;
-		while( stmp!= null) {
+		Nodo stmp = this.root;
+		
+		while(stmp!= null) {
 			tmp = stmp;
 			if (stmp.key>key) stmp=stmp.left; 
 			else stmp = stmp.right;
@@ -225,16 +232,45 @@ public class AVL {
 		N.parent = tmp;
 		
 		if (tmp == null) { //caso albero vuoto
-			root = N;
+			this.root = N;
 			N.parent = N;
 		}
 		else if (key<tmp.key) tmp.left=N;      //qui come nel while se il valore coincide con quello del padre viene messo a destra
 		else tmp.right=N;
 				
-		AggiustaCammino(N);
-		AggiustaSbilanciamento(N);
+//		AggiustaCammino(N);
+//		AggiustaSbilanciamento(N);
 		
-//		prova ad usare tmp come puunattore
+		{
+			while(tmp!= null) {
+			    AggiustaAltezza(tmp);
+			    
+			    Nodo x = tmp.parent;
+
+			    if(x.sbilanciamento() <= -2 || x.sbilanciamento() >= 2) {//grandparent is unbalanced
+			      if(tmp == x.left) {
+			        if(N == x.left.left) //case 1
+			          Rotazione_SS(x);
+
+			        else if(N == x.left.right) {//case 3
+			          Rotazione_SD(x);
+			        }
+			      }
+			      else if(tmp== x.right) {
+			        if(N == x.right.right) //case 2
+			          Rotazione_DD(x);
+
+			        else if(N == x.right.left) {//case 4
+			          Rotazione_DS(x);
+			        }
+			      }
+			      break;
+			    }
+			    tmp = tmp.parent;
+			    N = N.parent;
+			  }
+		}
+		
 	}
 	
 	public Nodo predecessore(Nodo v) {
@@ -416,10 +452,24 @@ public class AVL {
 	public static void main(String[] args) {
 		Movie S = new Movie ("uno");
 		AVL loco = new AVL (new Nodo (3,S));
-		loco.insert(2, loco.crea("due"));
-		loco.insert(1, loco.crea("tre"));
-//		loco.insert(4, loco.crea("quattro"));
-//		loco.insert(5, loco.crea("cinque"));
+//		System.out.println(loco.root.sbilanciamento());
+		
+		loco.insert(1, loco.crea("due"));
+//		System.out.println(loco.root.sbilanciamento());
+//		System.out.println(loco.root.left.sbilanciamento());
+		
+		loco.insert(2, loco.crea("tre"));
+//		System.out.println(loco.root.sbilanciamento());
+//		System.out.println(loco.root.left.sbilanciamento());
+//		System.out.println(loco.root.left.right.sbilanciamento());
+		
+		loco.insert(2, loco.crea("quattro"));
+//		System.out.println(loco.root.sbilanciamento());
+//		System.out.println(loco.root.left.sbilanciamento());
+//		System.out.println(loco.root.left.right.sbilanciamento());
+//		System.out.println(loco.root.left.right.right.sbilanciamento());
+		
 		loco.Stampa();
+		
 	}
 }

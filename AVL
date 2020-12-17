@@ -1,364 +1,244 @@
 package Strutture_Dati;
 
-public class AVL {
-	private Nodo root;
-	
-	public AVL (Nodo R) {
-		root = R;
-		R.parent = R;
-	};
+class AvlTree {
+public Node root;
 
-	public int max (int a, int b) {
-		if (a>=b)
-			return a;
-		else 
-			return b;
-	}
-	
-	public int maxheight(Nodo a, Nodo b) {
-		if(a == null && b == null)
-			return 0;
-		
-		if(a == null)
-			return b.height;
-		
-		if(b == null)
-			return a.height;
-		
-		else return max(a.height, b.height);
-	}
-	
-	
-	public Nodo max(Nodo v) {
-		while (v != null &&
-				v.right != null) {
-				v = v.right;
-				}
-				return v;
-				}
-	
-	public Nodo predecessore(Nodo v) {
-		if (v == null) return null;
-		
-		if(v.left != null) return max(v.left);
-		else   {	
-	    Nodo tmp = v.parent;
-		while (tmp!=null && v == tmp.left) {
-			v = tmp;
-			tmp = tmp.parent;
-			}
-		return tmp;
-		}
-	}
-	
-	public void AggiustaAltezze(Nodo N) {
-		while (N!=N.parent) { //aggiornamento height cammino nodo radice
-			N.parent.height = maxheight(N.parent.left, N.parent.right); 
-			N = N.parent;
-		} 
-	}
-	
-	public void Rotazione_SS (Nodo V) {
-		//aggiornamento puntatori
-		Nodo U = V.left; 
-		V.left = U.right;
-		V.left.parent = V;
-		U.right = V;
-		V.parent = U;
-		//aggiornamento altezza
-		V.height = maxheight(V.left, V.right);
-		U.height = maxheight(U.left, U.right);
-		AggiustaAltezze(U);
-	}
-	
-	public void Rotazione_DD (Nodo V) {
-		//aggiornamento puntatori
-		Nodo U = V.right;
-		V.right = U.left;
-		V.right.parent = V;
-		U.left = V;
-		V.parent = U;
-		//aggiornamento altezza
-		V.height = maxheight(V.left, V.right);
-		U.height = maxheight(U.left, U.right);
-		AggiustaAltezze(U);
-	}
-	
-	public void Rotazione_SD (Nodo V) {
-		Nodo Z = V.left; //slide 31 alberi bilanciati di ricerca. Bisogna controllare se ci conviene aggiornare gli sbilanciamenti o se ci 
-		Nodo W = Z.right;// basta richiamare la funzione sblianciamento dopo la rotazione.
-		
-		Z.right = W.left;
-		W.left.parent = Z;
-		V.left = W;
-		W.parent = V;
-		W.left = Z;
-		Z.parent = W;
-		
-		Z.height = maxheight(Z.left, Z.right); 	//rotazione sd -> lo height in Z è negativo 
-						//-> se Z scende il suo height aumenta
-		
-		Rotazione_SS(V);
-	}
-	
-	public void Rotazione_DS (Nodo V) {
-		Nodo Z = V.right;
-		Nodo W = Z.left;
-		
-		Z.left = W.right;	
-		W.right.parent = Z;
-		V.right = W;
-		W.parent =V;
-		W.right = Z;
-		Z.parent = W;
-		
-		Z.height = maxheight(Z.left, Z.right);
-		Rotazione_DD(V);
-	}
-	
-	
-	public void AggiustaSbilanciamento(Nodo I) {
-		if(I != null) {
-			I = I.parent;
-			while (I!=I.parent) {
-				if	(I.sbilanciamento() > 2 || I.sbilanciamento() < -2) {
-					System.out.println("Sbilanciamento anomalo");
-					break;
-				}
-				
-				if (I.sbilanciamento() == 2) { //sbilanciamento a sinistra
-					if (I.left.sbilanciamento() == 1)
-						Rotazione_SS(I);
-					else if(I.left.sbilanciamento() == -1)
-						Rotazione_SD(I);
-				}
-					
-				else if (I.sbilanciamento() == -2) { //sbilanciamento destra
-					if (I.left.sbilanciamento() == 1)
-						Rotazione_DS(I);
-					else if(I.left.sbilanciamento() == -1)
-						Rotazione_DD(I);
-				}
-				
-				I = I.parent;
-				
-			}
-	 	}
-	}
-	
-	public Nodo search (int k, Movie m) {
-		Nodo v = root;
-		while(v != null) {
-			if (k == v.key && v.movie.getTitle().equals(m.getTitle())) {
-				return v;
-			}
-			if (k < v.key) 
-				v = v.left;	
-			else 
-				v = v.right;
-		};
-		return null;
-	}
-	
-	public void insert (int key, Movie m) {
-		Nodo tmp = null; 
-		Nodo stmp = root;
-		while( stmp!= null) {
-			tmp = stmp;
-			if (stmp.key>key) stmp=stmp.left; 
-			else stmp = stmp.right;
-		}
-		Nodo N = new Nodo (key, m);
-		N.parent = tmp;
-		
-		if (tmp == null) { //caso albero vuoto
-			root = N;
-			N.parent = N;
-		}
-		else if (key<tmp.key) tmp.left=N;      //qui come nel while se il valore coincide con quello del padre viene messo a destra
-		else tmp.right=N;
-		
-		Nodo I = N;
-		
-		AggiustaAltezze(N);
-		
-		AggiustaSbilanciamento(I);
-	
-}	
-	
-	public void delete (int key, Movie m) { //poichè ci possono essere più chiavi uguali bisogna passare anche il film
-		Nodo I = search(key, m);
-		if(I != null) {
-			
-			if(I == root) {
-				//caso 00
-				if(I.left == null && I.right == null)
-					root = null;
-				//caso 01  //non cambia le altezze eliminare la radice 
-				else if(I.left == null) {
-					root = I.right;
-					I.right.parent = I.right;
-				}
-				//caso 10 //non cambia le altezze eliminare la radice
-				else if(I.right == null) {
-					root = I.left;
-					I.left.parent = I.left;
-				}
-				//caso 11
-				Nodo P = predecessore(I);
-				if(P == I.left) { //caso predecessore adiacente
-					P.right = I.right;
-					I.right.parent = P; 
-					//eventuali figli sinistri rimangono attaccati a P
-					root = P;
-					P.parent = P;
-					P.height = maxheight(P.left, P.right);
-					
-				}
-				else {   //caso predecessore non adiacente
-					if(P.left!=null) { //collegamento di eventuale figlio sinistro
-						P.parent.right = P.left;
-						P.left.parent = P.parent;
-						AggiustaAltezze(P.left);
-					}
-					P.right = I.right;
-					I.right.parent = P;
-					P.left = I.left;
-					I.left.parent = P;
-					root = P;
-					P.parent = P;
-					P.height = maxheight(P.left, P.right);
-				}
-				
-				
-			}
-			else { //nodo da eliminare non è root
-			
-			//caso 00
-			if(I.left == null && I.right == null) {
-				
-				if(I.key < I.parent.key) {
-					I.parent.left = null;
-					I.parent = null;
-					I.parent.height = maxheight(I.parent.left, I.parent.right);
-				}
-				else{
-					I.parent.right = null;
-					I.parent = null;
-					I.parent.height = maxheight(I.parent.left, I.parent.right);
-					}
-				}
-			//caso 01
-			else if(I.left == null) {
-				if(I.key < I.parent.key) {  //I è figlio sinistro
-					I.parent.left = I.right;
-					I.right.parent = I.parent;
-				}
-				else {						//I è figlio destro
-					I.parent.right = I.right;
-					I.right.parent = I.parent;
-				}
-				AggiustaAltezze(I.right);
-			}
-			//caso 10
-			else if(I.right == null) {
-				if(I.key < I.parent.key) {  //I è figlio sinistro
-					I.parent.left = I.left;
-					I.left.parent = I.parent;
-				}
-				else {						//I è figlio destro
-					I.parent.right = I.left;
-					I.left.parent = I.parent;
-				}
-				AggiustaAltezze(I.left);
-				
-			}
-			//caso 11
-			else {
-				Nodo P = predecessore(I);
-				
-				if(I.left == P) { //predecessore è figlio sinistro di I
-					P.right = I.right;
-					I.right.parent= P;
-					P.parent = I.parent;
-					if(I.key<I.parent.key) 
-						I.parent.left = P;
-					else	
-						I.parent.right = P;	
-					AggiustaAltezze(P.right);	
-				}
-				
-				else { 
-					if(P.left != null) {  //eventuale figlio sinistro riagganciato
-						P.parent.right = P.left;
-						P.left.parent= P.parent;
-						AggiustaAltezze(P.left);
-						P.height = I.height;
-						P.left = I.left; //sostituzione di I con P
-						I.left.parent = P;
-						P.right = I.right;
-						I.right.parent = P;
-						P.parent = I.parent;
-						if(I.key<I.parent.key) 
-							I.parent.left = P;
-						else
-							I.parent.right = P;		
-					}	
-					else { //nessun figlio sinistro di P
-						P.parent.height = maxheight(P.parent.left, null);
-						AggiustaAltezze(P.parent);
-						P.height = I.height;
-						P.left = I.left; //sostituzione di I con P
-						I.left.parent = P;
-						P.right = I.right;
-						I.right.parent = P;
-						P.parent = I.parent;
-						if(I.key<I.parent.key) 
-							I.parent.left = P;
-						else
-							I.parent.right = P;	
-						}
-				}	
-			}
-		
-		}
-	}
-  }
-	
-	public int numnodi(Nodo N) {
-		if(N == null)
-			return 0;
-		else 
-			return 1 + numnodi(N.left) + numnodi(N.right);
-		
-	}
-	
-	void AddToArray(Nodo N, Nodo arr[], int i ){//converte albero in array tramite visita pre-ordine
-		    if(N == null)
-		        return ;
-
-		    arr[i] = N;
-		    ++i;
-		    AddToArray(N.left, arr, i);
-		    AddToArray(N.right, arr, i);
-		}
-		
-		
-	
-	
-	public void Stampa() {
-		int i = numnodi(root);
-		if (i == 0)
-			System.out.println("albero vuoto");
-		else {
-			Nodo n_Array[];    
-			n_Array = new Nodo[i];
-			AddToArray(root, n_Array, 0);
-			for(int j = 0; j < i; j++) 
-				System.out.println(" [" + n_Array[j].key + "]");
-		}
-	}
-	
+public AvlTree() {
+  this.root = null;
 }
+
+public static int max(int a, int b) {
+  if(a > b)
+    return a;
+  return b;
+}
+
+public int height(Node n) {
+  if(n == null)
+    return -1;
+  return n.height;
+}
+
+public Node minimum(Node x) {
+  while(x.left != null)
+    x = x.left;
+  return x;
+}
+
+public void leftRotate(Node x) {
+  Node y = x.right;
+  x.right = y.left;
+  if(y.left != null) {
+    y.left.parent = x;
+  }
+  y.parent = x.parent;
+  if(x.parent == null) { //x is root
+    this.root = y;
+  }
+  else if(x == x.parent.left) { //x is left child
+    x.parent.left = y;
+  }
+  else { //x is right child
+    x.parent.right = y;
+  }
+  y.left = x;
+  x.parent = y;
+
+  x.height = 1 + max(height(x.left), height(x.right));
+  y.height = 1 + max(height(y.left), height(y.right));
+}
+
+public void rightRotate(Node x) {
+  Node y = x.left;
+  x.left = y.right;
+  if(y.right != null) {
+    y.right.parent = x;
+  }
+  y.parent = x.parent;
+  if(x.parent == null) { //x is root
+    this.root = y;
+  }
+  else if(x == x.parent.right) { //x is left child
+    x.parent.right = y;
+  }
+  else { //x is right child
+    x.parent.left = y;
+  }
+  y.right = x;
+  x.parent = y;
+
+  x.height = 1 + max(height(x.left), height(x.right));
+  y.height = 1 + max(height(y.left), height(y.right));
+}
+
+public int balanceFactor(Node n) {
+  if(n == null)
+    return 0;
+  return(height(n.left) - height(n.right));//farlo più brutto
+}
+
+public void insert(Node n) {
+  Node y = null;
+  Node temp = this.root;
+  while(temp != null) {  //ricerca posizione padre
+    y = temp;
+    if(n.data < temp.data)
+      temp = temp.left;
+    else
+      temp = temp.right;
+  }
+  n.parent = y;
+
+  if(y == null) //albero vuoto
+    this.root = n;
+  else if(n.data < y.data)
+    y.left = n;
+  else
+    y.right = n;
+
+  Node z = n;
+
+  while(y != null) {
+    y.height = 1 + max(height(y.left), height(y.right));
+
+
+    Node x = y.parent;
+
+    if(balanceFactor(x) <= -2 || balanceFactor(x) >= 2) {//nonno sbilanciato
+      if(y == x.left) {
+        if(z == x.left.left) //case SS
+          rightRotate(x);
+
+        else if(z == x.left.right) {//case SD
+          leftRotate(y);
+          rightRotate(x);
+        }
+      }
+      else if(y == x.right) {
+        if(z == x.right.right) //case DD
+          leftRotate(x);
+
+        else if(z == x.right.left) {//case DS
+          rightRotate(y);
+          leftRotate(x);
+        }
+      }
+     break;
+    }
+    y = y.parent;
+    z = z.parent;
+  }
+}
+
+public void transplant(Node u, Node v) { //u rimpiazzato da v
+  if(u.parent == null) //u is root
+    this.root = v;
+  else if(u == u.parent.left) //u is left child
+    u.parent.left = v;
+  else //u is right child
+    u.parent.right = v;
+
+  if(v != null)
+    v.parent = u.parent;
+}
+
+public void avlDeleteFixup(Node n) {
+  Node p = n;
+
+  while(p != null) {
+    p.height = 1 + max(height(p.left), height(p.right));
+
+    if(balanceFactor(p) <= -2 || balanceFactor(p) >= 2) { //grandparent is unbalanced
+      Node x, y, z;
+      x = p;
+
+      //taller child of x will be y
+      if(x.left.height > x.right.height)
+        y = x.left;
+      else
+        y = x.right;
+
+      //taller child of y will be z
+      if(y.left.height > y.right.height) {
+        z = y.left;
+      }
+      else if(y.left.height < y.right.height) {
+        z = y.right;
+      }
+      else { //same height, go for single rotation
+        if(y == x.left)
+          z = y.left;
+        else
+          z = y.right;
+      }
+
+      if(y == x.left) {
+        if(z == x.left.left) //case 1
+          rightRotate(x);
+
+        else if(z == x.left.right) {//case 3
+          leftRotate(y);
+          rightRotate(x);
+        }
+      }
+      else if(y == x.right) {
+        if(z == x.right.right) //case 2
+          leftRotate(x);
+
+        else if(z == x.right.left) {//case 4
+          rightRotate(y);
+          leftRotate(x);
+        }
+      }
+    }
+    p = p.parent;
+  }
+}
+
+public void delete(Node z) {
+  if(z.left == null) {
+    transplant(z, z.right);
+    if(z.right != null)
+      avlDeleteFixup(z.right);
+  }
+  else if(z.right == null) {
+    transplant(z, z.left);
+    if(z.left != null)
+      avlDeleteFixup(z.left);
+  }
+  else {
+    Node y = minimum(z.right); //minimum element in right subtree
+    if(y.parent != z) {
+      transplant(y, y.right);
+      y.right = z.right;
+      y.right.parent = y;
+    }
+    transplant(z, y);
+    y.left = z.left;
+    y.left.parent = y;
+    if(y != null)
+      avlDeleteFixup(y);
+  }
+}
+public void stamp (Node v) {
+    if (v != null) {
+        System.out.println(v.data + " " + v.movie.getTitle()+ " ");
+    	stamp(v.left); stamp(v.right);
+    }
+}
+
+public void Stampa() {
+	stamp(this.root);
+//    stamp(root);
+}
+public void inorder(Node n) {
+  if(n != null) {
+    inorder(n.left);
+    System.out.print(n.data + " ");
+    inorder(n.right);
+  }
+}
+}
+
 
 

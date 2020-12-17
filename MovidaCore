@@ -1,0 +1,256 @@
+package Strutture_Dati;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Scanner;
+import java.util.Set;
+import java.io.File;  // Import the File class
+import java.io.FileNotFoundException;  // Import this class to handle errors
+
+public class MovidaCore implements IMovidaDB, IMovidaSearch, IMovidaConfig {
+	private SortingAlgorithm x;
+	private MapImplementation map;
+	private Movie[] mArray;
+	public AvlTree tree;
+	public tabella_hash table;
+	private int NF;
+	private int NP;
+	private Person[] actors;
+	private ArrayList<Person> list;
+	
+	public MovidaCore() {
+		this.NF = 0;
+	}
+	
+	public void setmArray(Movie[] a) {
+		this.mArray = a;
+	}
+	
+	@Override
+	public boolean setSort(SortingAlgorithm a) {
+		if(a == SortingAlgorithm.BubbleSort) {
+			this.x = a;
+			return true;
+		}
+		else if(a == SortingAlgorithm.QuickSort) {
+			this.x = a;
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean setMap(MapImplementation m) {
+		if(m == MapImplementation.AVL) {
+			this.map = m;
+			return true;
+		}
+		else if(m == MapImplementation.HashIndirizzamentoAperto) {
+			this.map = m;
+			return true;
+		}
+		return false;
+	}
+	
+	private void setAVL() {
+		AvlTree a = new AvlTree(); 
+		for(int i=0; i<this.mArray.length; i++) {
+			Node tmp = new Node(mArray[i].getVotes(), mArray[i]);
+			a.insert(tmp);
+		}	
+		this.tree = a;
+	}
+	
+	private void setHash() {
+		tabella_hash a = new tabella_hash(this.mArray.length);
+		for(int i=0; i<this.mArray.length; i++) {
+			a.insert(mArray[i].getVotes(), mArray[i]);
+		}
+		this.table = a;
+	}
+
+	@Override
+	public void loadFromFile(File F) throws MovidaFileException { //non sappiamo fare l'eccezzzione
+		try {
+			  clear();
+		      File myObj = new File("esercizio.txt");
+		      Scanner myReader = new Scanner(myObj);
+		      String data = "";
+		      NumberFilms();
+		      int nFilms = this.NF; 
+		      Movie [] Films = new Movie [nFilms];
+		      int i = 0;	//i iteratore per Films
+		      for(; i < nFilms; i++){
+		    	  Films[i] = new Movie(""); 
+		    	  data = myReader.nextLine();	//riga del Title
+		    	  Films[i].setTitle(data.substring(7)); 
+//		    	  System.out.println(Films[i].getTitle());
+		    	  data = myReader.nextLine();
+		    	  Films[i].setYear(Integer.parseInt(data.substring(6, 10)));
+		    	  data = myReader.nextLine();
+		    	  Films[i].setDirector(data.substring(9));
+		    	  data = myReader.nextLine();
+		    	  Films[i].setCast(data.substring(6));
+		    	  data = myReader.nextLine();
+		    	  Films[i].setVotes(Integer.parseInt((data.substring(7)).trim()));	//stringa.trim() permette di ignorare gli spazi bianchi
+		    	  if(myReader.hasNext())
+		    		  data = myReader.nextLine(); // -> riga vuota		      
+		      }
+		      myReader.close();
+		      setmArray(Films);
+		      if(this.map == MapImplementation.AVL) 
+		    	  setAVL();
+		      	  
+		      else if(this.map == MapImplementation.HashIndirizzamentoAperto) 
+		    	  setHash();
+		}
+		catch (FileNotFoundException e) {
+			      System.out.println("An error occurred.");
+			      e.printStackTrace();
+				}
+	}
+	
+	@Override
+	public void saveToFile(File f) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void clear() {
+		this.mArray = null;
+		this.tree = null;
+		this.table = null;
+	}
+
+	public void NumberFilms() {
+		int i = 0;		
+		try {
+			File myObj = new File("esercizio.txt");
+			Scanner myReader = new Scanner(myObj);
+			
+			String data = "";
+			while (myReader.hasNextLine()) {
+		        data = myReader.nextLine();
+		        //supponiamo non ci siano nomi o cognomi "Title"
+		        if (data.contains("Title"))
+		        	i++;
+			}
+			myReader.close();
+		}
+		catch (FileNotFoundException e) {
+			System.out.println("An error occurred.");
+			e.printStackTrace();
+		}
+		this.NF = i;
+	}
+	
+	@Override
+	public int countMovies() {
+		return this.mArray.length;
+	}
+	
+	@Override
+	public int countPeople() {
+		
+		return this.NP;
+	}
+
+	@Override
+	public boolean deleteMovieByTitle(String title) {
+		
+		return false;
+	}
+
+	@Override
+	public Movie getMovieByTitle(String title) {
+		
+		return null;
+	}
+
+	@Override
+	public Person getPersonByName(String name) {
+		
+		return null;
+	}
+
+	@Override
+	public Movie[] getAllMovies() {
+		return this.mArray;
+	}
+
+	@Override
+	public Person[] getAllPeople() {
+		Set<Person> hs  = new HashSet<Person>();  
+		for(int i = 0; i < mArray.length; i++) {
+			if(hs.contains(mArray[i].getDirector()))
+				mArray[i].getDirector().setf();
+			else
+				hs.add(mArray[i].getDirector());
+//			Person[] x = mArray[i].getCast();
+//			for(int i2 = 0;  i2 < x.length; i2++ ) {
+//				add = false;
+//				for(int i3 = 0; i3<tmp.size(); i3++) {
+//					if(tmp.get(i3).getName().equalsIgnoreCase(x[i2].getName())){
+//						x[i2].setf();
+//						add = true;
+//						break;
+//					}
+//					if(!add) {
+//						tmp.add(j, x[i2]);
+//						j++;
+//					}
+//				}
+//			}
+		}
+		Person[] tmp2 = new Person[hs.size()]; //size() ha tempo costante
+		int k=0;
+		for (Person i: hs)
+			tmp2[k++] = i;
+		this.NP = hs.size(); 
+		return tmp2;
+		}	
+
+	@Override
+	public Movie[] searchMoviesByTitle(String title) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Movie[] searchMoviesInYear(Integer year) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Movie[] searchMoviesDirectedBy(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Movie[] searchMoviesStarredBy(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Movie[] searchMostVotedMovies(Integer N) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Movie[] searchMostRecentMovies(Integer N) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Person[] searchMostActiveActors(Integer N) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

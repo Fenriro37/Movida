@@ -1,2 +1,0 @@
-# Movida
-java-project
